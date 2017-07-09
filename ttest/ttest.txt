@@ -1,0 +1,19 @@
+Two-sample Paired T-test
+x_mean: 4.062500
+x_var: 1.308594
+x_SD: 1.162242
+x_SEM: 0.205457
+
+y_mean: 3.406250
+y_var: 2.241211
+y_SD: 1.521022
+y_SEM: 0.268881
+
+F-Test Result
+F-value: 0.000000
+p-valueof F-test: 1.000000nan sig.
+
+t_value: 2.164129
+p_value of T-test: 0.038275*
+
+effect size r: 0.265017effect size level: Small
