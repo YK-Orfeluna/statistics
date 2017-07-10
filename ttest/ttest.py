@@ -38,6 +38,7 @@ class Ttest :
 		self.ef = None
 		self.ef_level = ""
 		self.cid = []
+		self.adj = False
 
 		self.equal = True						# 等分散かどうか（帰無仮説に従い，初期値をTrueとしておく）
 
@@ -113,9 +114,12 @@ class Ttest :
 			print("t-value: %f" %self.t_value)
 			print("p_value: %f %s" %(self.t_p, p2ast(self.t_p)))
 
-			print("effect_size %s: %f" %(self.ef_flag, self.ef))
+			if self.adj :
+				print("effect_size %s(adj): %f" %(self.ef_flag, self.ef))
+			else :
+				print("effect_size %s: %f" %(self.ef_flag, self.ef))
 			if self.ef_flag == "d" or self.ef_flag == "g" :
-				print("CI of ", self.ef_flag, ": ", self.cid)
+				print("95per. CI of ", self.ef_flag, ": ", self.cid)
 			print("effect size level: ", self.ef_level)
 
 	def level(self) :							# 効果量の解釈を行う
@@ -135,21 +139,25 @@ class Ttest :
 
 	def effect_size(self) :		# 効果量を求める（クラスの引数により求める効果量の種類を決定する）
 		if self.ef_flag == "r" :
-			self.ef = np.sqrt(self.t_value**2 / (self.t_value**2 + self.df))
+			self.ef = np.abs(np.sqrt(self.t_value**2 / (self.t_value**2 + self.df)))
 
-		elif self.ef_flag == "d" or self.ef_flag == "g":		# Cohen's d
-			if self.pair :
-				self.ef = (self.meanx - self.meany) / np.std(self.x - self.y, ddof=1)
+		# elif self.pair :
+		# 	self.ef_flag = "d"
+		# 	xd = self.x - self.y
+		# 	self.ef = np.mean(xd) / np.std(xd, ddof=1)
 
-			else :
-				if self.dfx == self.dfy :
-					self.ef = (self.meanx - self.meany) / np.sqrt((self.sdx**2 + self.sdy**2) / 2)
-				else :
-					self.ef = (self.meanx - self.meany) / np.sqrt((self.dfx * self.sdx**2 + self.dfy * self.sdy**2) / self.df)
+		elif self.ef_flag == "d" :		# Cohen's d
+			sp = np.sqrt(((self.dfx+1) * np.std(self.x)**2 + (self.dfy+1) * np.std(self.y)**2) / (self.df + 2))
+			self.ef = np.abs((self.meanx - self.meany) / sp)
+
+		elif self.ef_flag == "g" :		# Hedges' g
+			sp = np.sqrt((self.dfx * self.sdx**2 + self.dfy * self.sdy**2) / self.df)
+			self.ef = np.abs((self.meanx - self.meany) / sp)
 				
-			if self.ef_flag == "g" :							# Hedges' g
-				correction = 1 - (3 / (4 * (self.df + 2 - 9)))
+			if self.dfx == self.dfy :							# gに対して補正を行う
+				correction = 1 - (3 / (4 * (self.df + 2) - 9))
 				self.ef *= correction
+				self.adj = True
 
 			semd1 = (self.df + 2) / ((self.dfx+1) * (self.dfy+1))
 			semd2 = (self.ef**2) / (2 * self.df)
@@ -157,7 +165,6 @@ class Ttest :
 			self.cid =[self.ef-1.96*semd, self.ef+1.96*semd]	# d/gの95%信頼区間
 
 		if self.ef != None :
-			self.ef = np.abs(self.ef)
 			self.level()
 
 	def write(self) :											# txtファイルへの書き出し
@@ -195,9 +202,12 @@ class Ttest :
 			txt.write("t_value: %f" %self.t_value + n)
 			txt.write("p_value of T-test: %f" %self.t_p + p2ast(self.t_p) + n + n)
 
-			txt.write("effect size %s: %f" %(self.ef_flag, self.ef))
+			if self.adj :
+				txt.write("effect size %s(adj): %f" %(self.ef_flag, self.ef))
+			else : 
+				txt.write("effect size %s: %f" %(self.ef_flag, self.ef))
 			if self.ef_flag == "d" or self.ef_flag == "g" :
-				txt.write("CI of %s: [%f, %f]" %(self.ef_flag, self.cid[0], self.cid[1]))
+				txt.write("95per. CI of %s: [%f, %f]" %(self.ef_flag, self.cid[0], self.cid[1]))
 			txt.write("effect size level: %s" %self.ef_level)
 
 
@@ -236,7 +246,7 @@ if __name__ == "__main__" :
 	filename = filedialog.askopenfilename(filetypes=fTyp,initialdir=iDir)
 
 
-	t = Ttest(filename, pair=True, ef_flag="r")
+	t = Ttest(filename, pair=True, ef_flag="g")
 	t.run()
 	exit("System Exit")
 

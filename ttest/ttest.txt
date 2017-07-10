@@ -16,4 +16,4 @@ p-valueof F-test: 1.000000nan sig.
 t_value: 2.164129
 p_value of T-test: 0.038275*
 
-effect size r: 0.265017effect size level: Small
+effect size g(adj): 0.47894095per. CI of g: [-0.018259, 0.976138]effect size level: Small
