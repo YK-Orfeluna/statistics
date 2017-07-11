@@ -150,6 +150,8 @@ class Ttest :
 			sp = np.sqrt(((self.dfx+1) * np.std(self.x)**2 + (self.dfy+1) * np.std(self.y)**2) / (self.df + 2))
 			self.ef = np.abs((self.meanx - self.meany) / sp)
 
+
+
 		elif self.ef_flag == "g" :		# Hedges' g
 			sp = np.sqrt((self.dfx * self.sdx**2 + self.dfy * self.sdy**2) / self.df)
 			self.ef = np.abs((self.meanx - self.meany) / sp)
@@ -159,7 +161,7 @@ class Ttest :
 				self.ef *= correction
 				self.adj = True
 
-			semd1 = (self.df + 2) / ((self.dfx+1) * (self.dfy+1))
+			semd1 = (self.df+2) / ((self.dfx+1) * (self.dfy+1))
 			semd2 = (self.ef**2) / (2 * self.df)
 			semd = np.sqrt(semd1 + semd2)						# d/gの標準誤差
 			self.cid =[self.ef-1.96*semd, self.ef+1.96*semd]	# d/gの95%信頼区間
@@ -169,7 +171,9 @@ class Ttest :
 
 	def write(self) :											# txtファイルへの書き出し
 		n = "\n"
-		with open("ttest.txt", "w") as txt :
+		outname = self.filename.rstrip(".csv")
+		outname += ".txt"
+		with open(outname, "w") as txt :
 			if self.sample == 1 :
 				txt.write("One-Sample T-test" + n)
 				txt.write("population: %d" %self.population + n)
@@ -194,10 +198,10 @@ class Ttest :
 				txt.write("y_SD: %f" %self.sdy + n)
 				txt.write("y_SEM: %f" %self.semy + n + n)
 
-				if self.pair :
+				if self.pair  == False:
 					txt.write("F-Test Result" + n)
 					txt.write("F-value: %f" %self.f_value + n)
-					txt.write("p-valueof F-test: %f" %self.f_p + p2ast(self.f_p) + n + n)
+					txt.write("p-value of F-test: %f" %self.f_p + p2ast(self.f_p) + n + n)
 
 			txt.write("t_value: %f" %self.t_value + n)
 			txt.write("p_value of T-test: %f" %self.t_p + p2ast(self.t_p) + n + n)
