@@ -207,11 +207,11 @@ class Ttest :
 			txt.write("p_value of T-test: %f" %self.t_p + p2ast(self.t_p) + n + n)
 
 			if self.adj :
-				txt.write("effect size %s(adj): %f" %(self.ef_flag, self.ef))
+				txt.write("effect size %s(adj): %f" %(self.ef_flag, self.ef) + n)
 			else : 
-				txt.write("effect size %s: %f" %(self.ef_flag, self.ef))
+				txt.write("effect size %s: %f" %(self.ef_flag, self.ef) + n)
 			if self.ef_flag == "d" or self.ef_flag == "g" :
-				txt.write("95per. CI of %s: [%f, %f]" %(self.ef_flag, self.cid[0], self.cid[1]))
+				txt.write("95per. CI of %s: [%f, %f]" %(self.ef_flag, self.cid[0], self.cid[1]) + n)
 			txt.write("effect size level: %s" %self.ef_level)
 
 
