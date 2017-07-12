@@ -5,6 +5,7 @@ import scipy as sp
 from scipy.stats import ttest_rel, ttest_ind, ttest_1samp, sem
 from ftest import ftest
 import pandas as pd
+from p2ast import *
 
 DEBUG = True
 #DEBUG = False
@@ -172,7 +173,7 @@ class Ttest :
 	def write(self) :											# txtファイルへの書き出し
 		n = "\n"
 		outname = self.filename.rstrip(".csv")
-		outname += ".txt"
+		outname += "_t.txt"
 		with open(outname, "w") as txt :
 			if self.sample == 1 :
 				txt.write("One-Sample T-test" + n)

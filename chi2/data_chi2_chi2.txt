@@ -1,0 +1,14 @@
+Chi-squared test
+
+Measured value: 
+[[10 20 25  5]
+ [30 10 10 10]]
+
+expected frequencies: 
+[[ 20.   15.   17.5   7.5]
+ [ 20.   15.   17.5   7.5]]
+
+chi^2(3): 21.428571
+p-value: 0.000086****
+
+effect size Crame'r's V: 0.422577

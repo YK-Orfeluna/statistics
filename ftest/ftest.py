@@ -1,20 +1,8 @@
 # -*- coding: utf-8 -*-
+
 import numpy as np
 from scipy.stats import f
-
-def p2ast(p) :
-		if p < 0.001 :
-			ast = "****"
-		elif p < 0.005 :
-			ast = "***"
-		elif p < 0.01 :
-			ast = "**"
-		elif p < 0.05 :
-			ast = "*"
-		else :
-			ast = "nan sig."
-
-		return ast
+from p2ast import *
 
 def ftest(x, y) :							# F検定を行って，等分散かどうかを判定する（p>.05なら等分散）
 	dfx = len(x) - 1
