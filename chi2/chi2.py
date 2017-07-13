@@ -8,6 +8,7 @@ from p2ast import *
 DEBUG = True
 CHI = u"\u03c7"
 V = "Cram%sr's V" %u"\u00e9"
+W = "Cohen's w"
 
 class Chi2 :
 	def __init__(self, filename, prob=None) :
@@ -18,10 +19,9 @@ class Chi2 :
 		self.c = 1						# 表の縦
 		self.r = 1						# 表の横
 
-		if prob != None :				# 1*c
-			self.prob = prob
-			if type(prob) != np.ndarray :
-				prob = np.array(prob, dtype=np.float64)
+		self.prob = prob
+		if type(prob) != np.ndarray :
+			prob = np.array(prob, dtype=np.float64)
 
 		self.chi2 = 0.0					# カイ二乗値
 		self.p = 1.0					# p値
@@ -34,11 +34,13 @@ class Chi2 :
 		df = pd.read_csv(self.filename, index_col=0)
 
 		self.data = df.values
+		self.data = np.array([[17, 11, 4, 0], [16, 9, 5, 2]])
 		self.n = np.sum(self.data)
 
-		self.c = self.data.shape[0]
+		self.r = self.data.shape[0]
 		if len(self.data.shape) != 1 :
-			self.r = self.data.shape[1]
+			self.c = self.data.shape[1]
+		print(self.r, self.c)
 
 		print("data: ")
 		print(self.data)
@@ -48,25 +50,34 @@ class Chi2 :
 			if self.prob == None :
 				self.prob = np.ones(self.r)
 			self.prob /= np.sum(self.prob)			# 理論確立
-			self.expected = prob * self.n
+			self.expected = self.prob * self.n
 
 			self.chi2, self.p = chisquare(self.data, self.expected)
 			self.df = self.r - 1
 	
 		else :
 			self.chi2, self.p, self.df, self.expected = chi2_contingency(self.data)
-			self.effect_size()
+		self.effect_size()
 
 		if DEBUG :
 			print("%s2(%d): %f" %(CHI, self.df, self.chi2))
 			print("p-value: %f" %self.p + p2ast(self.p))
 			print("expected frequencies: ")
 			print(self.expected)
-			if self.ef != None :
+			if self.c == 1 :
+				print("effect size %s: %f" %(W, self.ef))
+			else :
 				print("effect size %s: %f" %(V, self.ef))
 
 	def effect_size(self) :
-		self.ef = np.sqrt(self.chi2 / (min(self.r-1, self.c-1) * self.n))
+		if self.c == 1 :
+			p0 = self.prob
+			p1 = self.data / self.data.sum()
+
+			self.ef = np.sqrt(np.sum((p0 - p1)**2 / p0))							# Cohen's w
+
+		else :
+			self.ef = np.sqrt(self.chi2 / (min(self.r-1, self.c-1) * self.n))		# Cramer's V
 
 	def write(self) :
 		n = "\n"
@@ -85,7 +96,9 @@ class Chi2 :
 			txt.write("chi^2(%d): %f" %(self.df, self.chi2) + n)
 			txt.write("p-value: %f" %self.p + p2ast(self.p) + n + n)
 			
-			if self.ef != None :
+			if self.c == 1 :
+				txt.write("effect size %s: %f" %(W, self.ef))
+			else  :
 				txt.write("effect size Crame'r's V: %f" %self.ef)
 
 	def run(self) :
