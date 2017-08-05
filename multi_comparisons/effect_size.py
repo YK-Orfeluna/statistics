@@ -26,5 +26,5 @@ class EffectSize :
 
 
 if __name__ == "__main__" :
-	ef = EffectSize(dis=0.53, sem=0.107, N=33)
+	ef = EffectSize(dis=6, sem=2.249, N=33)
 	ef.run()

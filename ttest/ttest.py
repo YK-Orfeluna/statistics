@@ -10,20 +10,6 @@ from p2ast import *
 DEBUG = True
 #DEBUG = False
 
-def p2ast(p) :
-		if p < 0.001 :
-			ast = "****"
-		elif p < 0.005 :
-			ast = "***"
-		elif p < 0.01 :
-			ast = "**"
-		elif p < 0.05 :
-			ast = "*"
-		else :
-			ast = "nan sig."
-
-		return ast
-
 class Ttest :
 	def __init__(self, filename, pair=True, ef_flag="r", sample=2, population=0) :
 		self.sample = sample					# t検定の標本数
