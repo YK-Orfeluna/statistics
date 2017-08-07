@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from os.path import splitext
 import numpy as np
 import scipy as sp
 from scipy.stats import ttest_rel, ttest_ind, ttest_1samp, sem
@@ -11,23 +12,23 @@ DEBUG = True
 #DEBUG = False
 
 class Ttest :
-	def __init__(self, filename, pair=True, ef_flag="r", sample=2, population=0) :
+	def __init__(self, filename, pair=True, ef_flag="d", sample=2, population=0) :
 		self.sample = sample					# t検定の標本数
 		self.population = population			# 1標本t検定を行うときの母集団の値
 		
-		self.filename = filename
+		self.filename = filename				# 読み込むファイルの名前
 		self.x = np.array([])
 		self.y = np.array([])
 
-		self.pair = pair						# 対応のあるt検定を行い場合はTrue
+		self.pair = pair						# 対応のあるt検定を行う場合はTrue
 
-		self.ef_flag = ef_flag
+		self.ef_flag = ef_flag					# 効果量を指定する
 		self.ef = None
 		self.ef_level = ""
 		self.cid = []
 		self.adj = False
 
-		self.equal = True						# 等分散かどうか（帰無仮説に従い，初期値をTrueとしておく）
+		self.equal = True						# 等分散かどうか（帰無仮説に従い，初期値をTrue=等分散としておく）
 
 		self.f_value = 0 						# F値
 		self.f_p = 1.0							# Ftestのp値（帰無仮説に従い，初期値を1.0としておく）
@@ -36,7 +37,14 @@ class Ttest :
 		self.t_p = 1.0							# Ttestのp値（帰無仮説に従い，初期値を1.0としておく）
 		
 	def read_data(self) :						# CSVファイルの読み込み
-		df = pd.read_csv(self.filename, index_col=None)
+
+		if splitext(self.filename)[1] == ".csv" :					# csvならそのまま関数実行
+			df = pd.read_csv(self.filename, index_col=None)
+		elif splitext(self.filename)[1] == ".tsv" :					# tsvならdelimiter=\tとする
+			df = pd.read_csv(self.filename, index_col=None, delimiter="\t")
+		else :
+			exit("Error: we only support CSV or TSV file.\n your chosen file is not CSV or TSV.")
+
 		if DEBUG :
 			print(df)
 
@@ -45,7 +53,7 @@ class Ttest :
 
 		if self.sample == 2 :
 			self.y = data[1]
-		elif self.sample == 1 :
+		elif self.sample == 1 :					# 1-sample T-testを行うとき，各種計算用に全て同一値の母集団を生成する
 			self.y = self.x.copy()
 			self.y.fill(self.population)
 
@@ -84,28 +92,28 @@ class Ttest :
 
 		self.effect_size()
 
-		if DEBUG :
-			if self.sample == 1 :
+		if DEBUG :								# 結果をprintで出力する
+			if self.sample == 1 :				# 1標本t検定の結果をprint
 				print("One-Sample T-test")
 				print("population: %d" %self.population)
 				print("data-mean: %f" %self.meanx)
 
 			else :
-				print("Two-Sample T-test")
+				print("Two-Sample T-test")		# t検定の結果をprint
 				print("x_mean, y-mean: %f, %f" %(self.meanx, self.meany))
 
-				if self.pair == False :
+				if self.pair == False :			# 対応なしの場合，F検定の結果もprintする
 					print("F-value: ", self.f_value)
 					print("p-value of F-test: ", self.f_p, p2ast(self.f_p))
 
 			print("t-value: %f" %self.t_value)
 			print("p_value: %f %s" %(self.t_p, p2ast(self.t_p)))
 
-			if self.adj :
+			if self.adj :						# 効果量をprintする
 				print("effect_size %s(adj): %f" %(self.ef_flag, self.ef))
 			else :
 				print("effect_size %s: %f" %(self.ef_flag, self.ef))
-			if self.ef_flag == "d" or self.ef_flag == "g" :
+			if self.ef_flag == "d" or self.ef_flag == "g" :				# 効果量にCohen's d かHedges' gを用いた場合，効果量の95%CIをprint
 				print("95per. CI of ", self.ef_flag, ": ", self.cid)
 			print("effect size level: ", self.ef_level)
 
@@ -116,13 +124,13 @@ class Ttest :
 			l, m, s = 0.8, 0.5, 0.2
 
 		if self.ef > l :
-			self.ef_level = "Large"
+			self.ef_level = "Large"				# 大
 		elif self.ef > m :
-			self.ef_level = "Medium"
+			self.ef_level = "Medium"			# 中
 		elif self.ef > s :
-			self.ef_level = "Small"
+			self.ef_level = "Small"				# 小
 		else :
-			self.ef_level ="Rare"
+			self.ef_level ="Rare"				# ほどんどなし
 
 	def effect_size(self) :		# 効果量を求める（クラスの引数により求める効果量の種類を決定する）
 		if self.ef_flag == "r" :
@@ -158,8 +166,8 @@ class Ttest :
 
 	def write(self) :											# txtファイルへの書き出し
 		n = "\n"
-		outname = self.filename.rstrip(".csv")
-		outname += "_t.txt"
+		outname = splitext(self.filename)[0] + "_t.txt"
+
 		with open(outname, "w") as txt :
 			if self.sample == 1 :
 				txt.write("One-Sample T-test" + n)
@@ -203,7 +211,7 @@ class Ttest :
 
 
 	def run(self) :
-		self.read_data()			# CSVファイルを読み込む
+		self.read_data()			# ファイルを読み込む
 
 		self.ttest()
 

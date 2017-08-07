@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from scipy.stats import chi2_contingency, chisquare
 from p2ast import *
+from os.path import splitext, basename
+import codecs
 
 DEBUG = True
 CHI = u"\u03c7"
@@ -15,55 +17,60 @@ class Chi2 :
 		self.filename = filename		# 読み込み対象のファイル名
 
 		self.data = np.array([])		# 実測値
-		self.n = 0						# N（被験者数）
+		self.n = 0						# N（sample数）
 		self.c = 1						# 表の縦
 		self.r = 1						# 表の横
 
-		self.prob = prob
+		self.prob = prob				# 理論確立
 		if type(prob) != np.ndarray :
 			prob = np.array(prob, dtype=np.float64)
 
 		self.chi2 = 0.0					# カイ二乗値
-		self.p = 1.0					# p値
+		self.p = 1.0					# p値（帰無仮説に従い，初期値は1.0とする）
 		self.df = 0						# 自由度
 		self.expected = np.array([])	# 期待値
 
 		self.ef = None
 
-	def read_data(self) :
-		df = pd.read_csv(self.filename, index_col=0)
+	def read_data(self) :								# データの読み込み
+		if splitext(self.filename)[1] == ".csv" :
+			df = pd.read_csv(self.filename, index_col=0)
+		elif splitext(self.filename)[1] == ".tsv" :
+			df = pd.read_csv(self.filename, index_col=0, delimiter="\t")
+		else :
+			exit("Error: This script only suppot CSV or TSV file.")
 
 		self.data = df.values
-		self.data = np.array([[17, 11, 4, 0], [16, 9, 5, 2]])
-		self.n = np.sum(self.data)
+		self.n = np.sum(self.data)						# サンプル数
 
-		self.r = self.data.shape[0]
-		if len(self.data.shape) != 1 :
-			self.c = self.data.shape[1]
-		print(self.r, self.c)
+		if self.data.shape[0] > 1 :
+			self.r = self.data.shape[0]
 
-		print("data: ")
-		print(self.data)
+		self.c = self.data.shape[1]
 
-	def test(self) :
-		if self.c == 1 :
-			if self.prob == None :
+		if DEBUG :
+			print("data: \n", self.data)
+
+
+	def test(self) :									# 検定実施
+		if self.c == 1 :								# 1 x j　のカイ二乗検定
+			if self.prob == None :						# 理論確立の入力がなかった場合，自動で等分になるように理論確立を設定する
 				self.prob = np.ones(self.r)
-			self.prob /= np.sum(self.prob)			# 理論確立
-			self.expected = self.prob * self.n
+
+			self.expected = self.prob * self.n			# 理論確立とNから期待値を求める
 
 			self.chi2, self.p = chisquare(self.data, self.expected)
 			self.df = self.r - 1
 	
-		else :
+		else :											# i x j のカイ二乗検定
 			self.chi2, self.p, self.df, self.expected = chi2_contingency(self.data)
-		self.effect_size()
+
+		self.effect_size()								# 効果量を求める
 
 		if DEBUG :
-			print("%s2(%d): %f" %(CHI, self.df, self.chi2))
+			print("%s^2(%d): %f" %(CHI, self.df, self.chi2))
 			print("p-value: %f" %self.p + p2ast(self.p))
-			print("expected frequencies: ")
-			print(self.expected)
+			print("expected frequencies: \n", self.expected)
 			if self.c == 1 :
 				print("effect size %s: %f" %(W, self.ef))
 			else :
@@ -81,25 +88,25 @@ class Chi2 :
 
 	def write(self) :
 		n = "\n"
-		outname = self.filename.rstrip(".csv")
+		outname = splitext(self.filename)[0]
 		outname += "_chi2.txt"
 
-		with open(outname, "w") as txt :
-			txt.write("Chi-squared test" + n + n)
+		with codecs.open(outname, "w", "utf-8") as fd :
+			fd.write("Chi-squared test" + n + n)
 
-			txt.write("Measured value: " + n)
-			txt.write("%s" %self.data + n + n)
+			fd.write("Measured value: " + n)
+			fd.write("%s" %self.data + n + n)
 
-			txt.write("expected frequencies: " + n)
-			txt.write("%s" %self.expected + n + n)
+			fd.write("expected frequencies: " + n)
+			fd.write("%s" %self.expected + n + n)
 
-			txt.write("chi^2(%d): %f" %(self.df, self.chi2) + n)
-			txt.write("p-value: %f" %self.p + p2ast(self.p) + n + n)
+			fd.write("%s^2(%d): %f" %(CHI, self.df, self.chi2) + n)
+			fd.write("p-value: %f" %self.p + p2ast(self.p) + n + n)
 			
 			if self.c == 1 :
-				txt.write("effect size %s: %f" %(W, self.ef))
+				fd.write("effect size %s: %f" %(W, self.ef))
 			else  :
-				txt.write("effect size Crame'r's V: %f" %self.ef)
+				fd.write("effect size %s: %f" %(V, self.ef))
 
 	def run(self) :
 		self.read_data()
@@ -110,6 +117,16 @@ class Chi2 :
 
 		
 if __name__ == "__main__" :
-	app = Chi2("data_chi2.csv")
+	from sys import argv
+	if len(argv) < 1 :
+		exit("Error: arg1 is filename(CSV or TSV).")
+	elif len(argv) == 2 :
+		prob = None
+	elif len(argv) == 3 :
+		prob = argv[2]
+	elif len(argv) > 3 :
+		exit("Error: many args.")
+	
+	app = Chi2(argv[1], prob)
 	app.run()
 	

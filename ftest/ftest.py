@@ -11,7 +11,7 @@ def ftest(x, y) :							# F検定を行って，等分散かどうかを判定�
 	varx = np.var(x)						# 2つのデータの分散
 	vary = np.var(y)
 
-	if varx > vary :						# 分散比を計算（大きい方を小さい方で必ず割る）
+	if varx > vary :						# F値=分散比を計算（大きい方を小さい方で必ず割る）
 		f_value = varx / vary
 	else :
 		f_value = vary / varx
@@ -33,7 +33,7 @@ if __name__ == "__main__" :
 		import tkinter
 		from tkinter import filedialog
 	else :
-		exit("*This script only supports Python2.x or 3.x.\nSorry, we can not support your Python.")
+		exit("*This script only supports Python2.x or 3.x.\nSorry, we do not support your Python.")
 
 
 	### GUI用のおまじない
