@@ -5,7 +5,7 @@ import numpy as np
 import scipy as sp
 from scipy.stats import ttest_rel, ttest_ind, ttest_1samp, sem
 from ftest import ftest
-import pandas as pd
+from pandas import read_csv
 from p2ast import *
 
 DEBUG = True
@@ -37,11 +37,10 @@ class Ttest :
 		self.t_p = 1.0							# Ttestのp値（帰無仮説に従い，初期値を1.0としておく）
 		
 	def read_data(self) :						# CSVファイルの読み込み
-
 		if splitext(self.filename)[1] == ".csv" :					# csvならそのまま関数実行
-			df = pd.read_csv(self.filename, index_col=None)
+			df = read_csv(self.filename, header=None, index_col=None)
 		elif splitext(self.filename)[1] == ".tsv" :					# tsvならdelimiter=\tとする
-			df = pd.read_csv(self.filename, index_col=None, delimiter="\t")
+			df = read_csv(self.filename, header=None, index_col=None, delimiter="\t")
 		else :
 			exit("Error: we only support CSV or TSV file.\n your chosen file is not CSV or TSV.")
 
@@ -156,6 +155,7 @@ class Ttest :
 				self.ef *= correction
 				self.adj = True
 
+		if self.ef_flag == "d" or self.ef_flag == "g" :
 			semd1 = (self.df+2) / ((self.dfx+1) * (self.dfy+1))
 			semd2 = (self.ef**2) / (2 * self.df)
 			semd = np.sqrt(semd1 + semd2)						# d/gの標準誤差
@@ -166,7 +166,7 @@ class Ttest :
 
 	def write(self) :											# txtファイルへの書き出し
 		n = "\n"
-		outname = splitext(self.filename)[0] + "_t.txt"
+		outname = splitext(self.filename)[0] + "_T.txt"
 
 		with open(outname, "w") as txt :
 			if self.sample == 1 :
@@ -218,34 +218,17 @@ class Ttest :
 		self.write()
 
 if __name__ == "__main__" :
-	### Pythonのバージョンに合わせたtkinterのimport
-	import sys
-	v = sys.version_info[0]
-	if v == 2 :
-		import Tkinter as tkinter
-		import tkMessageBox as messagebox
-		import tkFileDialog as filedialog
-	elif v == 3 :
-		import tkinter
-		from tkinter import filedialog
-	else :
-		exit("*This script only supports Python2.x or 3.x.\nSorry, we can not support your Python.")
+	from sys import argv
+	if len(argv) < 3 :
+		exit("Error: arg is filename, pair")
+	elif len(argv)  == 3:
+		t = Ttest(argv[1], argv[2])
+	elif len(argv) == 4 :
+		t = Ttest(argv[1], argv[2], argv[3])
+	elif len(argv) == 6 :
+		t = Ttest(argv[1], argv[2], argv[3], argv[4], argv[5])
 
-
-	### GUI用のおまじない
-	root = tkinter.Tk()
-	root.option_add('*font', ('FixedSys', 14))
-	fTyp=[('csvファイル','*.csv')]
-	iDir='.'
-
-
-	### ファイル選択
-	lb=tkinter.Label(root, text="Chose answer-file",width=20)
-	lb.pack()
-	filename = filedialog.askopenfilename(filetypes=fTyp,initialdir=iDir)
-
-
-	t = Ttest(filename, pair=True, ef_flag="g")
 	t.run()
+
 	exit("System Exit")
 

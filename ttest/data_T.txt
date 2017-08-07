@@ -9,11 +9,9 @@ y_var: 2.241211
 y_SD: 1.521022
 y_SEM: 0.268881
 
-F-Test Result
-F-value: 0.000000
-p-valueof F-test: 1.000000nan sig.
-
 t_value: 2.164129
 p_value of T-test: 0.038275*
 
-effect size r: 0.265017effect size level: Small
+effect size d: 0.492586
+95per. CI of d: [-0.005025, 0.990197]
+effect size level: Small

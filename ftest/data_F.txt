@@ -1,0 +1,13 @@
+x_mean: 4.062500
+x_var: 1.308594
+x_SD: 1.162242
+x_SEM: 0.205457
+
+y_mean: 3.406250
+y_var: 2.241211
+y_SD: 1.521022
+y_SEM: 0.268881
+
+f-value: 1.712687
+p-value: 0.930179nan sig.
+These data are Equal Variance
