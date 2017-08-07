@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
+from pandas import read_csv
 import numpy as np
 from scipy.stats import chi2_contingency, chisquare
 from p2ast import *
@@ -34,9 +34,9 @@ class Chi2 :
 
 	def read_data(self) :								# データの読み込み
 		if splitext(self.filename)[1] == ".csv" :
-			df = pd.read_csv(self.filename, index_col=0)
+			df = read_csv(self.filename, index_col=None, header=None)
 		elif splitext(self.filename)[1] == ".tsv" :
-			df = pd.read_csv(self.filename, index_col=0, delimiter="\t")
+			df = read_csv(self.filename, index_col=None, header=None, delimiter="\t")
 		else :
 			exit("Error: This script only suppot CSV or TSV file.")
 
