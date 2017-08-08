@@ -220,14 +220,34 @@ class Ttest :
 if __name__ == "__main__" :
 	from sys import argv
 	if len(argv) < 3 :
-		exit("Error: arg is filename, pair")
-	elif len(argv)  == 3:
-		t = Ttest(argv[1], argv[2])
-	elif len(argv) == 4 :
-		t = Ttest(argv[1], argv[2], argv[3])
-	elif len(argv) == 6 :
-		t = Ttest(argv[1], argv[2], argv[3], argv[4], argv[5])
+		exit("Error: args are filename and pair")
+	elif len(argv)  >= 3:
+		filename = argv[1]
+		if argv[2] == "True" :
+			pair = True
+		elif argv[2] == "False" :
+			pair = False
+		else :
+			exit("Error: 2nd arg is True or False only")
 
+		es = "d"
+		sample = 2
+		population = 0
+
+	if len(argv) == 4 :
+		if argv[3] == "d" or argv[3] == "g" or argv[3] == "r" :
+			es = argv[3]
+		else :
+			exit("Error: 3rd arg is d or g or r")
+	elif len(argv) == 5 :
+		exit("Error: what is 6th arg?\nargs are filename, pair, effect_size, 1-sample and population")
+	elif len(argv) == 6 :
+		sample = int(argv[4])
+		population = float(argv[5])
+	elif len(argv) > 6 :
+		exit("Error: this script takes fron 2 to 5 args(%d given)" %len(argv)-1)
+
+	t = Ttest(filename, pair, es, sample, population)
 	t.run()
 
 	exit("System Exit")
