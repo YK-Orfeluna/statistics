@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from os.path import splitext
+
 import numpy as np
-import scipy as sp
 from scipy.stats import ttest_rel, ttest_ind, ttest_1samp, sem
+
 from ftest import ftest
 from pandas import read_csv
 from p2ast import *
@@ -42,7 +43,7 @@ class Ttest :
 		elif splitext(self.filename)[1] == ".tsv" :					# tsvならdelimiter=\tとする
 			df = read_csv(self.filename, header=None, index_col=None, delimiter="\t")
 		else :
-			exit("Error: we only support CSV or TSV file.\n your chosen file is not CSV or TSV.")
+			exit("Error: this script supports CSV or TSV file only.\nYour chose file is not CSV or TSV.")
 
 		if DEBUG :
 			print(df)
@@ -219,36 +220,46 @@ class Ttest :
 
 if __name__ == "__main__" :
 	from sys import argv
+
 	if len(argv) < 3 :
-		exit("Error: args are filename and pair")
-	elif len(argv)  >= 3:
+		print("Error: args is missing")
+		print("$1: [filename(CSV or TSV)]")
+		print("$2: [pair(True or False)]")
+		print("$3: [effect-size(d or g or r, default=d)]")
+		print("$4: [n_samples(if you want to use 1-sample T-test, you shold enter 1. default=2" )
+		print("$5: [mean of population when you use 1-sample T-test, default=0]")
+		exit()
+	else :
 		filename = argv[1]
-		if argv[2] == "True" :
+
+		if argv[2] == "True":
 			pair = True
 		elif argv[2] == "False" :
 			pair = False
 		else :
-			exit("Error: 2nd arg is True or False only")
+			exit("Error: $2 is True or False only")
 
 		es = "d"
 		sample = 2
 		population = 0
 
-	if len(argv) == 4 :
+	if 4 <= len(argv) :
 		if argv[3] == "d" or argv[3] == "g" or argv[3] == "r" :
 			es = argv[3]
 		else :
-			exit("Error: 3rd arg is d or g or r")
-	elif len(argv) == 5 :
-		exit("Error: what is 6th arg?\nargs are filename, pair, effect_size, 1-sample and population")
-	elif len(argv) == 6 :
+			exit("Error: $3 is d or g or r only")
+
+	if 5 <= len(argv) :
 		sample = int(argv[4])
+
+	if len(argv) == 6 :
 		population = float(argv[5])
+
 	elif len(argv) > 6 :
-		exit("Error: this script takes fron 2 to 5 args(%d given)" %len(argv)-1)
+		exit("Error: this script takes from 2 to 5 args(%d given)" %len(argv)-1)
 
 	t = Ttest(filename, pair, es, sample, population)
 	t.run()
 
-	exit("System Exit")
+	exit("done: process")
 
