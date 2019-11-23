@@ -1,0 +1,7 @@
+Two-Sample independent t-test
+x: mean = 4.062, stdev = 1.162, N = 32
+y: mean = 3.406, stdev = 1.521, N = 32
+
+T-Test: t = 2.164, p = 0.038[sig]
+Effect Sise: d = 0.493 [Small]
+95per. CI of d: [-0.005, 0.990]
