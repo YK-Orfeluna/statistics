@@ -6,3 +6,31 @@ example\output/eigen_value.png is saved.
 Facotr loadings are saved as example\output/factor_loadings.tsv.
 Facotr scores are saved as example\output/factor_score.tsv.
 Factor loadings are saved as example\output/factor_loadings_heatmap.png.
+Successfull: example\BostonHousing_wo_medv.csv is read.
+chi^2 = 4474.494, p<0.0001
+It is not an identity matrix.
+KMO measure = 0.853 (marvelous)
+example\output/eigen_value.png is saved.
+Facotr loadings are saved as example\output/factor_loadings.tsv.
+Facotr scores are saved as example\output/factor_score.tsv.
+Factor loadings are saved as example\output/factor_loadings_heatmap.png.
+Successfull: example\BostonHousing_wo_medv.csv is read.
+chi^2 = 4474.494, p<0.0001
+It is not an identity matrix.
+KMO measure = 0.853 (marvelous)
+example\output/eigen_value.png is saved.
+Facotr loadings are saved as example\output/factor_loadings.tsv.
+Facotr scores are saved as example\output/factor_score.tsv.
+Factor loadings are saved as example\output/factor_loadings_heatmap.png.
+Successfull: example\BostonHousing_wo_medv.csv is read.
+chi^2 = 4474.494, p<0.0001
+It is not an identity matrix.
+KMO measure = 0.853 (marvelous)
+example\output/eigen_value.png is saved.
+Facotr loadings are saved as example\output/factor_loadings.tsv.
+Facotr scores are saved as example\output/factor_score.tsv.
+Factor loadings are saved as example\output/factor_loadings_heatmap.png.
+Successfull: example\BostonHousing_wo_medv.csv is read.
+chi^2 = 4474.494, p<0.0001
+It is not an identity matrix.
+KMO measure = 0.853 (marvelous)

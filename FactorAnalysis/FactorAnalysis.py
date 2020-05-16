@@ -15,6 +15,7 @@ from factor_analyzer import FactorAnalyzer
 from factor_analyzer.factor_analyzer import calculate_bartlett_sphericity, calculate_kmo
 
 ROTATIONS = ("varimax", "promax", "oblimin", "oblimax", "quartimin", "quartimax", "equamax")
+METHOD = ("minres", "ml", "principal")
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("inf", type=str, \
@@ -33,12 +34,14 @@ def get_args():
         help="Significance level for chi square test; default is 0.05.")
     parser.add_argument("--FA_rotation", type=str, choices=ROTATIONS, default=None, \
         help="To choose rotation type of FactorAnalysis; default is None.")
-    parser.add_argument("--FA_method", type=str, choices=("minres", "ml", "principal"), default="minres", \
+    parser.add_argument("--FA_method", type=str, choices=METHOD, default="minres", \
         help="To choose method of FactorAnalysis; default is 'minres'.")
     parser.add_argument("--FA_n_factor", type=int, default=3, \
         help="Number of factors in FactorAnalysis; default is 3. However, if activate $kaiser_guttman, this argument is ignored.")
     parser.add_argument("--kaiser_guttman", action="store_true", default=False, \
         help="If activate, number of factors is decided based on Kaiser-Guttman Method ($FA_n_factor is ignored.)")
+    parser.add_argument("--kaiser_guttman_rotation", type=str, choices=ROTATIONS, default=None)
+    parser.add_argument("--kaiser_guttman_method", type=str, choices=METHOD, default="minres")
     parser.add_argument("--fig_ext", type=str, choices=("png", "pdf", "eps"), default="png", \
         help="To choose output figures' extention; default is 'png'.")
     parser.add_argument("--fig_dpi", type=int, default=300, \
@@ -60,6 +63,8 @@ class Factor_Analysis:
                     inf_dropna=False, \
                     N_factor=3, \
                     kaiser_guttman=False, \
+                    kaiser_guttman_rotation=None, \
+                    kaiser_guttman_method="minres", \
                     method="minres", \
                     rotation=None, \
                     p_alpha=0.05, \
@@ -79,6 +84,8 @@ class Factor_Analysis:
         self.method = method
         self.N_factor = N_factor
         self.kaiser_guttman = kaiser_guttman
+        self.kaiser_guttman_method = kaiser_guttman_method
+        self.kaiser_guttman_rotation = kaiser_guttman_rotation
         self.loadigs = None
         self.heatmap_cmap = heatmap_cmap
         self.heatmap_size = heatmap_size
@@ -140,7 +147,7 @@ class Factor_Analysis:
         self.logger.info("KMO measure = %.3f (%s)" %(kmo_model, kmo_rslt))
 
     def KaiserGuttman(self):
-        fa = FactorAnalyzer(self.N_adj, rotation=None)
+        fa = FactorAnalyzer(n_factors=self.N_adj, rotation=self.kaiser_guttman_rotation, method=self.kaiser_guttman_method)
         fa.fit(self.dataset)
         ev, v = fa.get_eigenvalues()
         N_factor = np.where(ev>=1)[0].shape[0]
@@ -216,6 +223,8 @@ if __name__=="__main__":
         N_factor=args.FA_n_factor, \
         method=args.FA_method, \
         kaiser_guttman=args.kaiser_guttman, \
+        kaiser_guttman_rotation=args.kaiser_guttman_rotation, \
+        kaiser_guttman_method=args.kaiser_guttman_method, 
         rotation=args.FA_rotation, \
         p_alpha=args.p_alpha, \
         dpi=args.fig_dpi, \
